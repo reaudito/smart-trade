@@ -3,6 +3,7 @@ use leptos_router::components::*;
 use leptos_router::path;
 use crate::pages::home::Home;
 use crate::components::trade_posts::trade_history::MakeTrade;
+use crate::components::trade_posts::get_pools_details::GetPoolsDetails;
 #[component]
 pub fn RouterApp() -> impl IntoView {
     view! {
@@ -10,6 +11,7 @@ pub fn RouterApp() -> impl IntoView {
             <Routes fallback=|| "Not Found.">
                 <Route path=path!("/") view=Home />
                 <Route path=path!("/trade") view=MakeTrade />
+                <Route path=path!("/get-pools") view=GetPoolsDetails />
 
             </Routes>
         </Router>

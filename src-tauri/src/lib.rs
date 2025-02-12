@@ -1,8 +1,10 @@
 pub mod trade;
 
 use crate::trade::trade_history::Trade;
-use tauri_plugin_store::StoreExt;
 use serde_json::{json, Value};
+use tauri_plugin_store::StoreExt;
+
+use crate::trade::ref_finance_trade::get_pools;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -27,7 +29,6 @@ async fn improve_post(content: String) -> String {
     }
 }
 
-
 #[tauri::command]
 async fn execute_trade(
     app: tauri::AppHandle,
@@ -37,7 +38,10 @@ async fn execute_trade(
 ) -> Result<String, String> {
     let store = app.store("store.json").map_err(|e| e.to_string())?;
 
-    let mut history: Vec<Trade> = store.get("trade_history").unwrap_or(json!([])).as_array()
+    let mut history: Vec<Trade> = store
+        .get("trade_history")
+        .unwrap_or(json!([]))
+        .as_array()
         .unwrap_or(&vec![])
         .iter()
         .map(|v| serde_json::from_value(v.clone()).unwrap())
@@ -67,13 +71,18 @@ async fn get_trade_history(app: tauri::AppHandle) -> Result<String, String> {
     Ok(history.to_string())
 }
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, improve_post, execute_trade, get_trade_history])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            improve_post,
+            execute_trade,
+            get_trade_history,
+            get_pools
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
