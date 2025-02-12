@@ -8,7 +8,7 @@ cargo install create-tauri-app --locked
 
 Make sure you have installed the prerequisites for your OS: https://tauri.app/start/prerequisites/, then run:
 ```
-  cd sociate-circle
+  cd smart-trade
   cargo tauri android init
 ```
 

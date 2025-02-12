@@ -1,6 +1,7 @@
 use leptos::prelude::*;
 use web_sys::{window, HtmlElement};
 use wasm_bindgen::JsCast;
+use crate::components::navigation::account_nav::AccountNav;
 
 
 
@@ -128,6 +129,10 @@ fn navbar_items() -> impl IntoView {
             >
                 "Trade"
             </a>
+
+            <div class="block py-2 px-4 text-gray-700 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+            <AccountNav/>
+            </div>
 
             <button
                 class="bg-gray-400 dark:bg-gray-600 text-white py-2 px-4 rounded-xl hover:bg-gray-500 dark:hover:bg-gray-500"
