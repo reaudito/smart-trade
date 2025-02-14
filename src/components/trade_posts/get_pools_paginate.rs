@@ -38,10 +38,13 @@ pub fn GetPoolsPaginate() -> impl IntoView {
     let input_element_page_size = NodeRef::<html::Input>::new();
 
     let fetch_pools: Action<(), (), LocalStorage> = Action::new_unsync(move|_: &()| {
+        let page = page.get();
+        let page_size = page_size.get();
+        
         async move {
             let args = serde_wasm_bindgen::to_value(&FetchPoolsArgs {
-                from_index: (page.get() - 1) * page_size.get(),
-                limit: page_size.get(),
+                from_index: (page - 1) * page_size,
+                limit: page_size,
             })
             .unwrap();
 
@@ -118,17 +121,20 @@ pub fn GetPoolsPaginate() -> impl IntoView {
                     <p>{move || pending.get().then_some(view! { <LoadingSpinner /> }.into_any())}</p>
 
                     <ul class="mt-4 space-y-4">
-                        {move || pools.get().iter().map(|pool| view! {
+                    {move || {
+                        let start_index = (page() - 1) * page_size();
+                        pools.get().iter().enumerate().map(|(i, pool)| view! {
                             <li class="p-4 border rounded-lg shadow-sm bg-gray-50 dark:bg-gray-700">
                                 <strong class="block text-lg font-semibold text-gray-900 dark:text-gray-200">
-                                    {pool.pool_kind.clone()}
+                                    <a href=format!("/get-pool/{}", start_index + i as u64)> "Pool #" {start_index + i as u64 } ": " {pool.pool_kind.clone()}</a>
                                 </strong>
                                 <p class="text-gray-600 dark:text-gray-400">Tokens: {pool.token_account_ids.join(", ")}</p>
                                 <p class="text-gray-600 dark:text-gray-400">Total Fee: {pool.total_fee}</p>
+                                <p class="text-gray-600 dark:text-gray-400">Shares: {pool.clone().shares_total_supply}</p>
                             </li>
-                        }).collect_view()}
-                    </ul>
-
+                        }).collect_view()
+                    }}
+                </ul>
                     // Pagination controls
                     {move || if !pools.get().is_empty() {
                         view! {
@@ -141,7 +147,7 @@ pub fn GetPoolsPaginate() -> impl IntoView {
                                     "Previous"
                                 </button>
                                 <span class="text-gray-700">
-                                    "Page " {page}
+                                    "Page " {move ||page()}
                                 </span>
                                 <button
                                     class="px-4 py-2 bg-blue-500 text-white rounded"

@@ -42,6 +42,33 @@ pub async fn get_pools() ->  Result<Vec<Pool>, String> {
 
 }
 
+#[tauri::command(rename_all = "snake_case")]
+pub async fn get_pool(pool_id: u64) ->  Result<Pool, String> {
+
+    let network = NetworkConfig::testnet();
+
+    let contract_id: AccountId = "ref-finance.testnet".parse().unwrap();
+    let contract = Contract(contract_id.clone());
+
+    let args = json!({
+        "pool_id": pool_id,
+    });
+
+    let view_call_result:Data<Pool>= contract
+    .call_function("get_pool", args)
+    .unwrap()
+    .read_only()
+    .fetch_from(&network)
+    .await
+    .unwrap();
+
+    // println!("{:?}", view_call_result.data);
+
+    Ok(view_call_result.data)
+
+
+}
+
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_pools_paginate(from_index: u64, limit: u64) -> Result<Vec<Pool>, String> {
