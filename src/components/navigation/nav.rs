@@ -115,10 +115,10 @@ fn navbar_items() -> impl IntoView {
                         "Get Pools"
                     </a>
                     <a
-                        href="/"
+                        href="/get-pools-paginate"
                         class="block py-2 w-full px-4 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                     >
-                        "Page 2"
+                        "Get Pools Paginate"
                     </a>
                 </div>
             </div>
