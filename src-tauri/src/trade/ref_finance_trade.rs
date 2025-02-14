@@ -43,15 +43,15 @@ pub async fn get_pools() ->  Result<Vec<Pool>, String> {
 }
 
 
-#[tauri::command]
-pub async fn get_pools_paginate(index: u64, limit: u64) -> Result<Vec<Pool>, String> {
+#[tauri::command(rename_all = "snake_case")]
+pub async fn get_pools_paginate(from_index: u64, limit: u64) -> Result<Vec<Pool>, String> {
     let network = NetworkConfig::testnet();
 
     let contract_id: AccountId = "ref-finance.testnet".parse().unwrap();
     let contract = Contract(contract_id.clone());
 
     let args = json!({
-        "from_index": index,
+        "from_index": from_index,
         "limit": limit
     });
 

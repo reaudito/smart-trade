@@ -3,7 +3,6 @@ use crate::components::navigation::nav::Nav;
 use leptos::html;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use serde_wasm_bindgen::from_value; // Import this!
 use wasm_bindgen::prelude::*;
 use leptos::ev;
@@ -16,7 +15,7 @@ extern "C" {
 
 #[derive(Serialize, Deserialize)]
 struct FetchPoolsArgs {
-    index: u64,
+    from_index: u64,
     limit: u64,
 }
 
@@ -41,7 +40,7 @@ pub fn GetPoolsPaginate() -> impl IntoView {
     let fetch_pools: Action<(), (), LocalStorage> = Action::new_unsync(move|_: &()| {
         async move {
             let args = serde_wasm_bindgen::to_value(&FetchPoolsArgs {
-                index: (page.get() - 1) * page_size.get(),
+                from_index: (page.get() - 1) * page_size.get(),
                 limit: page_size.get(),
             })
             .unwrap();
