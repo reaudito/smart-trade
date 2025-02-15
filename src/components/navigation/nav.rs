@@ -1,14 +1,11 @@
-use leptos::prelude::*;
-use web_sys::{window, HtmlElement};
-use wasm_bindgen::JsCast;
 use crate::components::navigation::account_nav::AccountNav;
-
-
+use leptos::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::{window, HtmlElement};
 
 #[component]
 pub fn Nav() -> impl IntoView {
     let (nav_open, set_nav_open) = signal(false);
-
 
     view! {
         {}
@@ -62,14 +59,23 @@ fn navbar_items() -> impl IntoView {
         let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
 
         if is_dark_mode.get() {
-            document.document_element().unwrap().class_list().add_1("dark").unwrap();
+            document
+                .document_element()
+                .unwrap()
+                .class_list()
+                .add_1("dark")
+                .unwrap();
             local_storage.set_item("currentTheme", "dark").unwrap();
         } else {
-            document.document_element().unwrap().class_list().remove_1("dark").unwrap();
+            document
+                .document_element()
+                .unwrap()
+                .class_list()
+                .remove_1("dark")
+                .unwrap();
             local_storage.set_item("currentTheme", "light").unwrap();
         }
     };
-
 
     view! {
         <>
@@ -120,6 +126,12 @@ fn navbar_items() -> impl IntoView {
                     class="block py-2 w-full px-4 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                 >
                     "Get Pools"
+                </a>
+                    <a
+                    href="/swap"
+                    class="block py-2 w-full px-4 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                >
+                    "Swap"
                 </a>
                 </div>
             </div>
