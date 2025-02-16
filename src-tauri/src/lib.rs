@@ -1,10 +1,9 @@
 pub mod trade;
-
-
 use serde_json::{json, Value};
 use tauri_plugin_store::StoreExt;
 
 use crate::trade::ref_finance_trade::{get_pools, execute_trade, get_trade_history, get_pools_paginate, get_pool};
+use crate::trade::sign_in::{sign_in, get_account_id};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -44,6 +43,8 @@ pub fn run() {
             get_pools,
             get_pools_paginate,
             get_pool,
+            sign_in,
+            get_account_id,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

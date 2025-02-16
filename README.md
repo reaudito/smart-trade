@@ -22,6 +22,8 @@ For Android development, run:
   cargo tauri android dev
 ```
 
+"hello.near"
+
 
 ## Tailwindcss
 
