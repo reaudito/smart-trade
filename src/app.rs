@@ -6,12 +6,18 @@ use crate::components::navigation::nav::Nav;
 use wasm_bindgen::JsCast;
 use crate::router::RouterApp;
 use web_sys::{window, HtmlElement};
+use crate::components::common::global_state::GlobalState;
+use reactive_stores::Store;
+
+
 
 
 #[component]
 pub fn App() -> impl IntoView {
 
-    // Get the window object
+
+    provide_context(Store::new(GlobalState::default()));
+    
     let window = window().expect("should have a Window");
 
     // Check if the user prefers a dark color scheme

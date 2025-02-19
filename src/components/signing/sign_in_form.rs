@@ -4,6 +4,9 @@ use leptos::task::spawn_local;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use crate::components::navigation::nav::Nav;
+use reactive_stores::Store;
+use crate::components::common::global_state::{GlobalState, GlobalStateStoreFields};
+
 
 
 #[wasm_bindgen]
@@ -24,6 +27,9 @@ pub fn SignInForm() -> impl IntoView {
     let (account_id, set_account_id) = signal(String::new());
     let (loading, set_loading) = signal(false);
     let (message, set_message) = signal::<Option<Result<String, String>>>(None);
+    let state = expect_context::<Store<GlobalState>>();
+
+    let account =state.account_state();
 
     let handle_submit = move |ev: SubmitEvent| {
         ev.prevent_default();
@@ -57,10 +63,13 @@ pub fn SignInForm() -> impl IntoView {
             let result = invoke("sign_in", js_args).await;
 
             if let Some(account_id) = result.as_string() {
-                set_message.set(Some(Ok(account_id)));
+                set_message.set(Some(Ok(account_id.clone())));
+                *account.write() = account_id;
             } else {
                 set_message.set(Some(Err("Invalid response format".into())));
             }
+
+            
 
             set_loading.set(false);
         });

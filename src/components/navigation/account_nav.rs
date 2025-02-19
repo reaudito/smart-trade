@@ -2,6 +2,9 @@ use leptos::prelude::*;
 use leptos_icons::*;
 use wasm_bindgen::prelude::*;
 use serde_wasm_bindgen::from_value;
+use reactive_stores::Store;
+use crate::components::common::global_state::{GlobalState, GlobalStateStoreFields};
+
 
 use leptos_use::{
     use_clipboard_with_options, use_permission, UseClipboardOptions, UseClipboardReturn,
@@ -18,9 +21,9 @@ extern "C" {
 
 #[component]
 pub fn AccountNav() -> impl IntoView {
+    let state = expect_context::<Store<GlobalState>>();
 
-    let (account_state, set_account_state) = signal("hello.near".to_string());
-
+    let account =state.account_state();
 
     let fetch_pool: Action<(), (), LocalStorage> = Action::new_unsync(move |_| async move {
     
@@ -29,7 +32,7 @@ pub fn AccountNav() -> impl IntoView {
         match from_value::<String>(result) {
             Ok(account_id) => {
                 web_sys::console::log_1(&format!("accound_id: {}", account_id.clone()).into());
-                set_account_state.set(account_id);
+                *account.write() = account_id;
 
             }
             Err(e) => {
@@ -64,7 +67,7 @@ pub fn AccountNav() -> impl IntoView {
     view! {
         <>
             {move || {
-                let full_id = account_state();
+                let full_id = account.get();
                 let shortened_id = if full_id.len() > 8 {
                     format!("{}...{}", &full_id[..8], &full_id[full_id.len() - 4..])
                 } else {
