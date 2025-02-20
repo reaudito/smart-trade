@@ -1,18 +1,20 @@
+use crate::components::common::spinner::LoadingSpinner;
 use crate::components::navigation::nav::Nav;
+use crate::components::trade_posts::get_pool_details_props::GetPoolDetailsProps;
+use crate::components::trade_posts::register_account::RegisterAccount;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::to_value;
 use wasm_bindgen::prelude::*;
-use crate::components::trade_posts::get_pool_details_props::GetPoolDetailsProps;
-use crate::components::common::spinner::LoadingSpinner;
-use crate::components::trade_posts::register_account::RegisterAccount;
-
 
 // Update the invoke binding to accept arguments
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
     async fn invoke(cmd: &str, args: JsValue) -> JsValue;
+
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"], js_name = invoke)]
+    async fn invoke_without_args(cmd: &str) -> JsValue;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -23,6 +25,11 @@ struct SwapArgs {
     token_out: String,
 }
 
+#[derive(Serialize, Deserialize)]
+struct HistroyArg {
+    content: String,
+}
+
 #[component]
 pub fn SwapInterface() -> impl IntoView {
     let (pool_id, set_pool_id) = signal(0u64);
@@ -30,6 +37,7 @@ pub fn SwapInterface() -> impl IntoView {
     let (amount_in, set_amount_in) = signal("".to_string());
     let (token_out, set_token_out) = signal("".to_string());
     let (result, set_result) = signal("".to_string());
+    let (result_ai, set_result_ai) = signal("".to_string());
 
     let swap_action: Action<(), (), LocalStorage> = Action::new_unsync(move |_| {
         let token_in = token_in.get();
@@ -56,8 +64,40 @@ pub fn SwapInterface() -> impl IntoView {
         }
     });
 
-    let pending = swap_action.pending(); // ReadSignal<bool>
+    let ask_ai_action: Action<(), (), LocalStorage> = Action::new_unsync(move |_| {
+        let token_in = token_in.get();
+        let amount_in = amount_in.get();
+        let token_out = token_out.get();
+        let pool_id = pool_id.get();
+        async move {
+            let history = invoke_without_args("get_swap_history")
+                .await
+                .as_string()
+                .unwrap_or("No history found".to_string()); // Replace this with actual trade history
+            let current_trade = format!(
+                "Current trade is pool_id: {}, token_in: {}, amount_id: {}, token_out: {}",
+                pool_id,
+                token_in.clone(),
+                amount_in.clone(),
+                token_out.clone()
+            );
 
+            let message = format!(
+                "Should I trade? {}, swap history {}",
+                current_trade, history
+            );
+
+            let args = to_value(&HistroyArg { content: message }).unwrap();
+            let ai_response = invoke("ask_ai", args).await;
+            match ai_response.as_string() {
+                Some(res) => set_result_ai.set(res),
+                None => set_result_ai.set("AI decision failed!".to_string()),
+            }
+        }
+    });
+
+    let pending = swap_action.pending();
+    let pending_ask_ai = ask_ai_action.pending();
 
     view! {
         <>
@@ -129,12 +169,34 @@ pub fn SwapInterface() -> impl IntoView {
             <p>{move || pending.get().then_some( view! { <LoadingSpinner /> }.into_any())}</p>
 
             <p class="mt-4 text-sm text-gray-700 dark:text-gray-300">{result}</p>
+       
+
+        <button
+            on:click=move |_| {ask_ai_action.dispatch(()); }
+            class="w-full px-4 py-2 mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+            Ask AI if you should Trade
+        </button>
+        <br/>
+        <br/>
+        <p>{move || pending_ask_ai.get().then_some( view! { <LoadingSpinner /> }.into_any())}</p>
+
+        {move || {
+                let html_content = result_ai
+                    .get()
+                    .replace("\n", "<br>")
+                    .replace("<think>", r#"<think><span class="italic text-sm">"#)
+                    .replace("</think>", "</span></think>");
+                view! { <div class="dark:text-white" inner_html=html_content></div> }.into_any()
+            }
+        }
+
         </div>
 
 
-        {move || 
+        {move ||
             view! { <GetPoolDetailsProps pool_id=pool_id.get() /> }.into_any()
-        } 
+        }
         </div>
         </>
     }

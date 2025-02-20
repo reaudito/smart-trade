@@ -26,7 +26,7 @@ pub fn CreatePost() -> impl IntoView {
         spawn_local(async move {
             if !post_content.is_empty() {
                 let args = serde_wasm_bindgen::to_value(&ImprovePostArgs { content: post_content.clone() }).unwrap();
-                let res = invoke("improve_post", args).await;
+                let res = invoke("ask_ai", args).await;
 
                 if let Some(new_post) = res.as_string() {
                     set_improved_post.set(new_post);

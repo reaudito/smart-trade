@@ -1,4 +1,4 @@
-use crate::trade::trade_history::Trade;
+use crate::trade::trade_history::{Trade, TradeSwap};
 use near_api::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -160,6 +160,31 @@ pub async fn swap(app: tauri::AppHandle, pool_id: u64, token_in: String, amount_
         .send_to(&network)
         .await
         .unwrap();
+    let store = app.store("storeswap.json").map_err(|e| e.to_string())?;
+
+    let mut history: Vec<TradeSwap> = store
+        .get("trade_history")
+        .unwrap_or(json!([]))
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .map(|v| serde_json::from_value(v.clone()).unwrap())
+        .collect();
+
+    let new_trade = TradeSwap {
+        pool_id: pool_id,
+        token_in: token_in,
+        amount_in: amount_in,
+        token_out: token_out,
+        timestamp: chrono::Utc::now().timestamp(),
+    };
+
+    history.push(new_trade);
+
+    store.set("trade_history", json!(history));
+    store.save().map_err(|e| e.to_string())?;
+
+    
     Ok(format!("{:?}", function_call_result))
 }
 
@@ -197,4 +222,14 @@ pub async fn register_account(app: tauri::AppHandle ) -> Result<String, String> 
         .await
         .unwrap();
     Ok(format!("{:?}", function_call_result))
+}
+
+
+#[tauri::command]
+pub async fn get_swap_history(app: tauri::AppHandle) -> Result<String, String> {
+    let store = app.store("storeswap.json").map_err(|e| e.to_string())?;
+    let history = store.get("trade_history").unwrap_or(json!([]));
+
+    // Convert JSON to a String
+    Ok(history.to_string())
 }

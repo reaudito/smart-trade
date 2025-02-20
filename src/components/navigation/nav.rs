@@ -90,7 +90,7 @@ fn navbar_items() -> impl IntoView {
                     on:click=move |_| set_submenu_open.update(|n| *n = !*n)
                     class="block w-full text-left py-2 px-4 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                 >
-                    "Posts"
+                    "Pages"
                     <svg
                         class="inline w-4 h-4 ml-2"
                         xmlns="http://www.w3.org/2000/svg"
@@ -128,19 +128,27 @@ fn navbar_items() -> impl IntoView {
                     "Get Pools"
                 </a>
                     <a
-                    href="/swap"
+                    href="/trade"
                     class="block py-2 w-full px-4 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                 >
-                    "Swap"
+                    "Trade"
                 </a>
                 </div>
             </div>
 
             <a
-                href="/trade"
+                href="/get-pools-paginate"
                 class="block py-2 px-4 text-gray-700 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
-                "Trade"
+                "Get Pools Paginate"
+            </a>
+
+
+            <a
+                href="/swap"
+                class="block py-2 px-4 text-gray-700 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+            >
+                "Swap"
             </a>
 
             <div class="block py-2 px-4 text-gray-700 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">

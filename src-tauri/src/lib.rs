@@ -2,7 +2,7 @@ pub mod trade;
 use serde_json::{json, Value};
 use tauri_plugin_store::StoreExt;
 
-use crate::trade::ref_finance_trade::{get_pools, execute_trade, get_trade_history, get_pools_paginate, get_pool, swap, register_account};
+use crate::trade::ref_finance_trade::{get_pools, execute_trade, get_trade_history, get_pools_paginate, get_pool, swap, register_account, get_swap_history};
 use crate::trade::sign_in::{sign_in, get_account_id};
 
 #[tauri::command]
@@ -10,8 +10,8 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-#[tauri::command]
-async fn improve_post(content: String) -> String {
+#[tauri::command(rename_all = "snake_case")]
+async fn ask_ai(content: String) -> String {
     use ollama_rs::generation::completion::request::GenerationRequest;
     use ollama_rs::Ollama;
 
@@ -37,13 +37,14 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             greet,
-            improve_post,
+            ask_ai,
             execute_trade,
             get_trade_history,
             get_pools,
             get_pools_paginate,
             get_pool,
             swap,
+            get_swap_history,
             register_account,
             sign_in,
             get_account_id,
