@@ -2,7 +2,7 @@
 
 Smart Trade is built on the [Ref Finance API](https://www.ref.finance/) using near-api-rs, Tauri, Leptos, and Ollama.
 
-
+It uses ref-finance.testnet. 
 
 ## Using the Smart Trade App
 
